@@ -50,7 +50,7 @@
                         Tu Misión
                     </h3>
                     <ul class="text-sm text-slate-600 space-y-2">
-                        <li id="check-greeting">❌ Saluda (Dear Sal,)</li>
+                        <li id="check-greeting">❌ Saluda (Dear Sam,)</li>
                         <li id="check-content">❌ Habla de ti y de internet</li>
                         <li id="check-functions">❌ Qué ves online</li>
                         <li id="check-reason">❌ Cuanto tiempo pasas en internet</li>
@@ -159,10 +159,11 @@
             const hasReason = val.includes("because") || val.includes("like it since") || val.includes("love it because");
             const hasClosing = val.includes("write soon") || val.includes("best wishes") || val.includes("bye") || val.includes("see you");
 
-            updateCheckItem(checks.greeting, hasGreeting, "Saluda (Dear Sal,)");
-            updateCheckItem(checks.content, hasApp, "Menciona una app/web");
-            updateCheckItem(checks.functions, hasFunctions, "Explica qué puedes hacer");
-            updateCheckItem(checks.reason, hasReason, "Di por qué te gusta");
+            updateCheckItem(checks.greeting, hasGreeting, "Saluda (Dear Sam,)");
+            updateCheckItem(checks.content, hasApp, "Habla de ti y de internet");
+            updateCheckItem(checks.functions, hasFunctions, "Qué ves online");
+            updateCheckItem(checks.reason, hasReason, "Cuanto tiempo pasas en internet");
+            updateCheckItem(checks.closing, hasClosing, "Qué tres cosas haces más cuando estás en internet");
             updateCheckItem(checks.closing, hasClosing, "Despídete (Write soon,)");
         }
 
