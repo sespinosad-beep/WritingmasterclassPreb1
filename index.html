@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoHumanAI - Writing Masterclass Offline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sentence-starter {
+            transition: all 0.3s ease;
+        }
+        .highlight-success { border-left: 4px solid #10b981; background-color: #ecfdf5; }
+        .highlight-warning { border-left: 4px solid #f59e0b; background-color: #fffbeb; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-700">CoHumanAI: Writing Coach</h1>
+                <p class="text-slate-500">Nivel Pre-B1 | Versión Offline para GitHub Pages</p>
+            </div>
+            <div class="bg-indigo-100 p-3 rounded-xl text-indigo-700">
+                <i class="fa-solid fa-pen-nib text-2xl"></i>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Sidebar: Instructions & Tools -->
+            <div class="space-y-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fa-solid fa-list-check mr-2 text-indigo-500"></i>
+                        Tu Misión
+                    </h3>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li id="check-greeting">❌ Saluda (Dear Sal,)</li>
+                        <li id="check-content">❌ Menciona una app/web</li>
+                        <li id="check-functions">❌ Explica qué puedes hacer</li>
+                        <li id="check-reason">❌ Di por qué te gusta</li>
+                        <li id="check-closing">❌ Despídete (Write soon,)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-indigo-900 text-white p-5 rounded-2xl shadow-lg">
+                    <h3 class="font-bold mb-3 flex items-center text-indigo-200">
+                        <i class="fa-solid fa-lightbulb mr-2"></i>
+                        Evita Repetir
+                    </h3>
+                    <p class="text-xs mb-4 opacity-80">Usa estos inicios para subir tu nota:</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="bg-white/10 p-2 rounded">There is...</div>
+                        <div class="bg-white/10 p-2 rounded">You can...</div>
+                        <div class="bg-white/10 p-2 rounded">This app is...</div>
+                        <div class="bg-white/10 p-2 rounded">I like it because...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Editor -->
+            <div class="md:col-span-2 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-indigo-500">
+                    <div class="mb-4 flex justify-between items-center">
+                        <label class="block text-sm font-bold text-slate-700 uppercase tracking-wider">Tu Email:</label>
+                        <span id="wordCount" class="text-xs font-medium bg-slate-100 px-2 py-1 rounded text-slate-500">0 palabras</span>
+                    </div>
+                    
+                    <textarea id="emailInput" rows="10" 
+                        class="w-full p-4 text-slate-700 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        placeholder="Dear Sal, ..."></textarea>
+
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                        <button id="analyzeBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            Revisar mi Email
+                        </button>
+                        <button id="clearBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-6 rounded-xl transition-all">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedbackArea" class="hidden animate-fade-in space-y-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-graduation-cap mr-2 text-blue-500"></i>
+                            Análisis del Tutor:
+                        </h4>
+                        <div id="aiResponse" class="text-slate-600 text-sm leading-relaxed space-y-3">
+                            <!-- Local Content will go here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Sentence Checker -->
+                <div class="bg-slate-200/50 p-4 rounded-xl">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase mb-3">Analizador de Estructura (Inicios):</h5>
+                    <div id="structureVisualizer" class="flex flex-wrap gap-2">
+                        <span class="text-xs bg-white text-slate-400 px-3 py-1 rounded-full border border-slate-300 italic">Escribe algo para analizar la variedad...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('emailInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const aiResponse = document.getElementById('aiResponse');
+        const wordCount = document.getElementById('wordCount');
+        const structureVisualizer = document.getElementById('structureVisualizer');
+
+        // Referencias de la misión
+        const checks = {
+            greeting: document.getElementById('check-greeting'),
+            content: document.getElementById('check-content'),
+            functions: document.getElementById('check-functions'),
+            reason: document.getElementById('check-reason'),
+            closing: document.getElementById('check-closing')
+        };
+
+        // Análisis en tiempo real
+        emailInput.addEventListener('input', () => {
+            const text = emailInput.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            wordCount.innerText = `${words} palabras`;
+            
+            updateChecklist(text);
+            updateStructureVisualizer(text);
+        });
+
+        function updateChecklist(text) {
+            const val = text.toLowerCase();
+            
+            // Lógica simple de detección
+            const hasGreeting = val.includes("dear sal") || val.includes("hi sal") || val.includes("hello sal");
+            const hasApp = val.includes("app") || val.includes("website") || val.includes("called");
+            const hasFunctions = val.includes("can") || val.includes("use it to");
+            const hasReason = val.includes("because") || val.includes("like it since") || val.includes("love it because");
+            const hasClosing = val.includes("write soon") || val.includes("best wishes") || val.includes("bye") || val.includes("see you");
+
+            updateCheckItem(checks.greeting, hasGreeting, "Saluda (Dear Sal,)");
+            updateCheckItem(checks.content, hasApp, "Menciona una app/web");
+            updateCheckItem(checks.functions, hasFunctions, "Explica qué puedes hacer");
+            updateCheckItem(checks.reason, hasReason, "Di por qué te gusta");
+            updateCheckItem(checks.closing, hasClosing, "Despídete (Write soon,)");
+        }
+
+        function updateCheckItem(element, condition, label) {
+            if (condition) {
+                element.innerHTML = `✅ ${label}`;
+                element.className = "text-sm text-green-600 font-bold";
+            } else {
+                element.innerHTML = `❌ ${label}`;
+                element.className = "text-sm text-slate-400";
+            }
+        }
+
+        function updateStructureVisualizer(text) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 3);
+            if (sentences.length === 0) {
+                structureVisualizer.innerHTML = `<span class="text-xs bg-white text-slate-400 px-3 py-1 rounded-full border border-slate-300 italic">Escribe algo para analizar la variedad...</span>`;
+                return;
+            }
+
+            structureVisualizer.innerHTML = '';
+            sentences.forEach(s => {
+                const sClean = s.trim();
+                const start = sClean.toLowerCase().split(' ').slice(0, 2).join(' ');
+                let colorClass = "bg-white text-slate-600 border border-slate-300";
+                let icon = "fa-circle";
+
+                if (start.startsWith('there is') || start.startsWith('there are')) {
+                    colorClass = "bg-green-100 text-green-700 border border-green-200";
+                    icon = "fa-star";
+                } else if (start.startsWith('you can')) {
+                    colorClass = "bg-blue-100 text-blue-700 border border-blue-200";
+                    icon = "fa-bolt";
+                } else if (start.startsWith('this app') || start.startsWith('this web') || start.startsWith('it is')) {
+                    colorClass = "bg-purple-100 text-purple-700 border border-purple-200";
+                    icon = "fa-fingerprint";
+                } else if (start.startsWith('i like') || start.startsWith('i love') || start.startsWith('i use')) {
+                    colorClass = "bg-amber-50 text-amber-700 border border-amber-200";
+                    icon = "fa-triangle-exclamation";
+                }
+
+                const span = document.createElement('span');
+                span.className = `text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 ${colorClass}`;
+                span.innerHTML = `<i class="fa-solid ${icon}"></i> "${start}..."`;
+                structureVisualizer.appendChild(span);
+            });
+        }
+
+        analyzeBtn.addEventListener('click', () => {
+            const text = emailInput.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            
+            if (words < 5) {
+                alert("Escribe un poco más para poder analizar tu email.");
+                return;
+            }
+
+            // Generar feedback local
+            let feedbackHTML = "";
+            const val = text.toLowerCase();
+            const starts = text.split(/[.!?]+/).map(s => s.trim().toLowerCase().split(' ')[0]);
+            const repetitiveI = starts.filter(s => s === 'i').length;
+
+            feedbackHTML += `<div class="p-3 rounded-lg bg-indigo-50 border-l-4 border-indigo-400">
+                <strong>📊 Estadísticas:</strong> Has escrito ${words} palabras. El rango ideal para Pre-B1 es de 25-35 palabras.
+            </div>`;
+
+            if (repetitiveI > 2) {
+                feedbackHTML += `<div class="p-3 rounded-lg bg-amber-50 border-l-4 border-amber-400">
+                    <strong>⚠️ Alerta de repetición:</strong> Has empezado muchas frases con "I" (Yo). Intenta usar <em>"There is..."</em> o <em>"You can..."</em> para que el email suene más profesional.
+                </div>`;
+            } else {
+                feedbackHTML += `<div class="p-3 rounded-lg bg-green-50 border-l-4 border-green-400">
+                    <strong>🌟 ¡Buena variedad!</strong> Estás usando diferentes formas de empezar tus frases. ¡Sigue así!
+                </div>`;
+            }
+
+            if (!val.includes("because")) {
+                feedbackHTML += `<div class="p-3 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+                    <strong>💡 Consejo:</strong> No olvides explicar POR QUÉ te gusta la app usando el conector <em>"because"</em>.
+                </div>`;
+            }
+
+            aiResponse.innerHTML = feedbackHTML;
+            feedbackArea.classList.remove('hidden');
+            feedbackArea.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        clearBtn.addEventListener('click', () => {
+            if(confirm('¿Seguro que quieres borrar todo?')) {
+                emailInput.value = '';
+                feedbackArea.classList.add('hidden');
+                updateChecklist('');
+                updateStructureVisualizer('');
+            }
+        });
+    </script>
+</body>
+</html>
